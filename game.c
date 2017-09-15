@@ -1,4 +1,4 @@
-/**
+//**
  * fifteen.c
  *
  * Implements Game of Fifteen (generalized to d x d).
@@ -28,6 +28,7 @@ int board[DIM_MAX][DIM_MAX];
 
 // dimensions
 int d;
+
 
 // prototypes
 void clear(void);
@@ -67,7 +68,7 @@ int main(int argc, string argv[])
 
     // initialize the board
     init();
-
+    
     // accept moves until game is won
     while (true)
     {
@@ -173,7 +174,6 @@ void init(void)
         board[d - 1][d - 2] = board[d - 1][d - 3];
         board[d - 1][d - 3] = temp;
     }
-    
 }
 
 /**
@@ -214,45 +214,58 @@ void draw(void)
  */
 bool move(int tile)
 {
-    //Blank tile location: Row: i; Column: j
     
+    //Blank tile location: Row: i; Column: j
+    int zero_I;
+    int zero_J;
     int temp;
+    
+    for(int l = 0; l < d; l++)
+    {
+        for(int k = 0; k < d; k++)
+        {
+            if(board[l][k] == 0)
+            {
+                zero_I = l;
+                zero_J = k;
+            }
+        }
+    }
     for(int i = 0; i < d; i++)
     {
         for(int j = 0; j < d; j++)
         {
-            if(board[i][j] == tile && i == blank_Row - 1 && j == blank_Col)
+            if(board[i][j] == tile && board[i][j] == board[zero_I - 1][zero_J])
             {
                 temp = board[i][j];
-                board[i][j] = board[blank_Row][blank_Col];
-                board[blank_Row][blank_Col] = temp;
-                blank_Row = blank_Row - 1;
-                printf("%i\n", tile);
-                printf("%i\n", board[i][j]);
+                board[i][j] = board[zero_I][zero_J];
+                board[zero_I][zero_J] = temp;
+                zero_I = zero_I - 1;
+                return true;
+                
+            }
+            else if(board[i][j] == tile && board[i][j] == board[zero_I + 1][zero_J])
+            {
+                temp = board[i][j];
+                board[i][j] = board[zero_I][zero_J];
+                board[zero_I][zero_J] = temp;
+                zero_I = zero_I + 1;
                 return true;
             }
-            else if(board[i][j] == tile && i == blank_Row + 1 && j == blank_Col)
+            else if(board[i][j] == tile && board[i][j] == board[zero_I][zero_J - 1])
             {
                 temp = board[i][j];
-                board[i][j] = board[blank_Row][blank_Col];
-                board[blank_Row][blank_Col] = temp;
-                blank_Row = blank_Row + 1;
+                board[i][j] = board[zero_I][zero_J];
+                board[zero_I][zero_J] = temp;
+                zero_J = zero_J - 1;
                 return true;
             }
-            else if(board[i][j] == tile && i == blank_Row && j == blank_Col - 1)
+            else if(board[i][j] == tile && board[i][j] == board[zero_I][zero_J + 1])
             {
                 temp = board[i][j];
-                board[i][j] = board[blank_Row][blank_Col];
-                board[blank_Row][blank_Col] = temp;
-                blank_Col = blank_Col - 1;
-                return true;
-            }
-            else if(board[i][j] == tile && i == blank_Row && j == blank_Col + 1)
-            {
-                temp = board[i][j];
-                board[i][j] = board[blank_Row][blank_Col];
-                board[blank_Row][blank_Col] = temp;
-                blank_Col = blank_Col + 1;
+                board[i][j] = board[zero_I][zero_J];
+                board[zero_I][zero_J] = temp;
+                zero_J = zero_J + 1;
                 return true;
             }
         }
@@ -266,6 +279,28 @@ bool move(int tile)
  */
 bool won(void)
 {
-    // TODO
+    // Iterate through array to see if it is in order
+    int count = 1;
+    while(count < (d * d) - 1)
+    {
+        for(int i = 0; i < d; i++)
+        {
+            for(int j = 0; j < d; j++)
+            {
+                if(board[i][j] != count)
+                {
+                    return false;
+                }
+                else if(board[i][j] == count)
+                {
+                    count++;
+                }
+                if(count == (d * d) - 1 && board[d - 1][d - 1] == 0)
+                {
+                    return true;
+                }
+            }
+        }
+    }
     return false;
 }
